@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-
+// Fade in and fade out feature
 const AnimationWrapper = ({
   children,
   initial = { opacity: 0 },
