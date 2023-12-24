@@ -16,15 +16,20 @@ const BlogEditor = () => {
     blogState,
     blogState: { title, banner, content, tags, des },
     setBlogState,
+    textEditorState,
+    setTextEditorState,
+    setEditorState,
   } = useContext(EditorContext);
 
   useEffect(() => {
-    let editor = new EditorJS({
-      holderId:"textEditor",
-      data:"",
-      tools:tools,
-      placeholder:"Let's write an awesome story"
-    });
+    setTextEditorState(
+      new EditorJS({
+        holderId: "textEditor",
+        data: "",
+        tools: tools,
+        placeholder: "Let's write an awesome story",
+      })
+    );
   }, []);
 
   // Banner Upload functionlity
@@ -59,13 +64,36 @@ const BlogEditor = () => {
     let input = e.target;
     input.style.height = "auto";
     input.style.height = input.scrollHeight + "px";
-
     setBlogState({ ...blogState, title: input.value });
   };
 
   const handleError = (e) => {
     let img = e.target;
     img.src = defaultBanner;
+  };
+
+  // When click on the publish button
+  const handlePublishEvent = () => {
+    if (!banner.length) {
+      return toast.error("Upload a blog banner to publish it.");
+    }
+
+    if (!title.length) {
+      return toast.error("Write blog title to publish it.");
+    }
+
+    if (textEditorState.isReady) {
+      textEditorState.save().then((data) => {
+        if (data.blocks.length) {
+          setBlogState({ ...blogState, content: data });
+          setEditorState("publish");
+        }else{
+          return toast.error("Write something in your blog to publish it.");
+        }
+      }).catch((err)=>{
+        console.log(err);
+      });
+    }
   };
 
   return (
@@ -78,7 +106,9 @@ const BlogEditor = () => {
           {title.length ? title : "New Blog"}
         </p>
         <div className="flex gap-4 ml-auto">
-          <button className="btn-dark py-2">Publish</button>
+          <button className="btn-dark py-2" onClick={handlePublishEvent}>
+            Publish
+          </button>
           <button className="btn-light py-2">Save Draft</button>
         </div>
       </nav>
